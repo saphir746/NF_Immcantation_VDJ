@@ -1,3 +1,14 @@
+# NextFlow
+ .nextflow.*
+ .nextflow/
+ *.swp
+ work/
+
+# output files
+*.csv
+*.tsv
+*.pdf
+
 # History files
 .Rhistory
 .Rapp.history
