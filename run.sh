@@ -16,5 +16,6 @@ nextflow run main.nf -resume \
 	             --WD ${WORKDIR} \
 		     --indir ${INDIR} \
 	             --outdir ${OUTDIR} \
+		     --org "mouse" \
 		     -profile cluster \
 		     -work-dir $WORK_DIR
