@@ -5,7 +5,7 @@ ml Singularity/3.11.3
 
 WORKDIR=/nemo/stp/babs/working/schneid/projects/vinuesac/qian.shen/qs699/
 OUTDIR=${WORKDIR}Immcantation
-INDIR=${WORKDIR}
+INDIR=${WORKDIR}Cellranger_output/
 
 WORK_DIR=/camp/stp/babs/scratch/schneid/SC24085_Imm_NF/
 
@@ -17,5 +17,6 @@ nextflow run main.nf -resume \
 		     --indir ${INDIR} \
 	             --outdir ${OUTDIR} \
 		     --org "mouse" \
-		     -profile cluster \
+		     --dist 0.15 \
+		     -profile local \
 		     -work-dir $WORK_DIR

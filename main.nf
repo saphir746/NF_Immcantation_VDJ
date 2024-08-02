@@ -23,20 +23,18 @@ process changeo10X {
             overwrite: publish_overwrite
        
         input:
-                tuple path(loc), val(SAM)
+                tuple path(FASTA), path(CSV), val(SAM)
 
         output:
                 path("*_productive-T.tsv")
         script:
         """
-        FASTA=$loc/Cellranger_output/$SAM/outs/multi/vdj_b/all_contig.fasta
-        CSV=$loc/Cellranger_output/$SAM/outs/multi/vdj_b/all_contig_annotations.csv
-        changeo-10x \
-		-s ${FASTA} \
-		-a ${CSV} \
+	changeo-10x \
+		-s $FASTA \
+		-a $CSV \
 		-g ${params.org} \
 		-t 'ig' \
-		-n ${SAM} \
+		-n $SAM \
 		-o .
         """
 }
@@ -76,12 +74,36 @@ process changeo_clones {
         script:
         """
         changeo-10x-clone.sh -g ${params.org} \
-			-x ${params.dist} \ 
+			-x ${params.dist} \
 			-sH $Hv \
 			-sL $Lt \
 			-n  $name \
 			-o .
         """
+}
 
+///////////////////////////////////////////////////////////////////////////////
+//// MAIN WORKFLOW ////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+workflow {
+  
+	Channel
+		.fromPath(params.indir+'/*', type:'dir', maxDepth:1)
+		.map{[
+			it,	
+			it.toString().replaceAll("(.*)/SC[0-9]+_(.*)", "\$2")
+		]}
+		.map{[
+	           it[0]+'/outs/multi/vdj_b/all_contig.fasta',
+		   it[0]+'/outs/multi/vdj_b/all_contig_annotations.csv',
+		   it[1]
+		]}
+		.set{ Indirs }
+
+	changeo10X(Indirs)
+	changeo10X
+		.out
+         	.view()
 
 }
