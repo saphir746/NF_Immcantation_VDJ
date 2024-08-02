@@ -1,8 +1,8 @@
 # NextFlow
- .nextflow.*
- .nextflow/
- *.swp
- work/
+.nextflow.*
+.nextflow/
+*.swp
+work/
 
 # output files
 *.csv
