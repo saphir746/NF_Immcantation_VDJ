@@ -12,11 +12,12 @@ WORK_DIR=/camp/stp/babs/scratch/schneid/SC24085_Imm_NF/
 
 export NXF_SINGULARITY_CACHEDIR=${WORKDIR}/images/cachedir/
 
-nextflow run main.nf -resume \
+nextflow run main.nf \ ## -resume \
 	             --WD ${WORKDIR} \
 		     --indir ${INDIR} \
 	             --outdir ${OUTDIR} \
 		     --org "mouse" \
 		     --dist 0.15 \
 		     -profile local \
+		     --dump-channels \
 		     -work-dir $WORK_DIR

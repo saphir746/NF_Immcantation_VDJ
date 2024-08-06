@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+
 # Super script to run IgBLAST and Change-O on 10x data
 #
 # Author:  Jason Anthony Vander Heiden, Ruoyi Jiang
@@ -181,7 +183,7 @@ fi
 
 # Set distance model
 if ! ${MODEL_SET}; then
-    MODEL="ham"
+    MODEL="nt" #"ham"
 fi
 
 # Set output directory
@@ -291,6 +293,7 @@ scoper-clone -d ${HEAVY_PROD},${LIGHT_PROD} -o . -f ${FORMAT} \
     >> $PIPELINE_LOG 2> $ERROR_LOG
 
 CLONE_FILE="${OUTNAME}_heavy_clone-pass.${EXT}"
+CLONE_FILE_L="${OUTNAME}_light_clone-pass.${EXT}"
 check_error
 
 # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 30 "DefineClones"
@@ -318,9 +321,15 @@ CreateGermlines.py -d ${CLONE_FILE} --cloned -r ${REFDIR} -g ${CG_GERM} \
 HEAVY_PROD="${OUTNAME}_heavy_germ-pass.${EXT}"
 check_error
 
+CreateGermlines.py -d ${CLONE_FILE_L} --cloned -r ${REFDIR} -g ${CG_GERM} \
+    --outname "${OUTNAME}_light" --log "${LOGDIR}/germline.log" --format ${FORMAT} \
+    >> $PIPELINE_LOG 2> $ERROR_LOG
+LIGHT_PROD="${OUTNAME}_light_germ-pass.${EXT}"
+check_error
+
 # # Zip or delete intermediate files
 # printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 30 "Compressing files"
-# TEMP_FILES=$(ls *.tsv *.tab 2> /dev/null | grep -v "${HEAVY_PROD}\|${LIGHT_PROD}")
+# TEMP_FILES=$(ls *.tsv *.tab 2> /dev/null | grep -v "${HEAVY_PROD}\|${LIGHT_PROD}\|${HEAVY_NON}\|${LIGHT_NON}\|${DB_PASS}")
 # if [[ ! -z $TEMP_FILES ]]; then
 #     if $ZIP_FILES; then
 #         tar -zcf temp_files.tar.gz $TEMP_FILES
@@ -329,23 +338,7 @@ check_error
 #         rm $TEMP_FILES
 #     fi
 # fi
-
-# End
+# 
+# # End
 # printf "DONE\n\n"
 # cd ../
-
-# Zip or delete intermediate files
-printf "  %2d: %-*s $(date +'%H:%M %D')\n" $((++STEP)) 30 "Compressing files"
-TEMP_FILES=$(ls *.tsv *.tab 2> /dev/null | grep -v "${HEAVY_PROD}\|${LIGHT_PROD}\|${HEAVY_NON}\|${LIGHT_NON}\|${DB_PASS}")
-if [[ ! -z $TEMP_FILES ]]; then
-    if $ZIP_FILES; then
-        tar -zcf temp_files.tar.gz $TEMP_FILES
-    fi
-    if $DELETE_FILES; then
-        rm $TEMP_FILES
-    fi
-fi
-
-# End
-printf "DONE\n\n"
-cd ../

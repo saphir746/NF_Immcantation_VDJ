@@ -48,13 +48,13 @@ process Imm_process_R {
             overwrite: publish_overwrite
 
         input:
-                tuple val(Hv), val(Lt)
+                path(HvLt)
 
         output:
-                path("*_productive-T.tsv")
+                tuple path("*_heavy_productive-T.tsv"), path("*_light_productive-T.tsv")
         script:
         """
-	Immcantation_process.R $Hv $Lt
+	Immcantation_process.R
 	"""
 }
 
@@ -67,17 +67,15 @@ process changeo_clones {
             overwrite: publish_overwrite
 
         input:
-                tuple val(Hv), val(Lt)
+                tuple path(Hv), path(Lt), val(name)
 
         output:
-                path("*_productive-T.tsv")
+                path("*.tsv")
         script:
         """
         changeo-10x-clone.sh -g ${params.org} \
 			-x ${params.dist} \
-			-sH $Hv \
-			-sL $Lt \
-			-n  $name \
+			-n $name \
 			-o .
         """
 }
@@ -104,6 +102,20 @@ workflow {
 	changeo10X(Indirs)
 	changeo10X
 		.out
-         	.view()
+		.collect()
+         	.set{ Intmd1 }
+      
+	Imm_process_R(Intmd1)
+	Imm_process_R
+		.out
+		.map{[
+			it[0],
+			it[1],
+			it[0].toString().replaceAll("(.*)/(.*)_heavy_productive-T.tsv", "\$2")
+		]}
+		.set{ Intmd2 }
+
+//	Intmd2.view()
+	changeo_clones(Intmd2)
 
 }
