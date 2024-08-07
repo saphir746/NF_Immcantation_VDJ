@@ -64,7 +64,7 @@ BCR_dat_H<-map(BCR_dat_H, function(bcr){
 BCR_dat_L<-map(BCR_dat_L, function(bcr){
   bcr %>%
     filter(locus == "IGL"| locus == "IGK")  %>%
-    select(cell_id) %>% table()-> multi_ligth
+    select(cell_id) %>% table()-> multi_light
   multi_light_cells <- names(multi_light)[multi_light > 1]
   bcr %>% filter(!(cell_id %in% multi_light_cells ))
 })

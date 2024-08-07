@@ -70,13 +70,32 @@ process changeo_clones {
                 tuple path(Hv), path(Lt), val(name)
 
         output:
-                path("*.tsv")
+                path("*_germ-pass.tsv")
         script:
         """
         changeo-10x-clone.sh -g ${params.org} \
 			-x ${params.dist} \
 			-n $name \
 			-o .
+        """
+}
+
+process mutation_freq {
+
+        container "docker://immcantation/suite:4.5.0"                                        
+
+        publishDir Paths.get( params.outdir ),
+            mode: publish_mode,
+            overwrite: publish_overwrite
+
+        input:
+                path(Hv)
+
+        output:
+                path("*_mut_freq.tsv")
+        script:
+        """
+        mutation_freq_germline_vdj.R $Hv
         """
 }
 
@@ -115,7 +134,12 @@ workflow {
 		]}
 		.set{ Intmd2 }
 
-//	Intmd2.view()
 	changeo_clones(Intmd2)
+  changeo_clones
+    .out
+    .flatten()
+    .set{ Intmd3 }
+
+	mutation_freq(Intmd3)
 
 }
